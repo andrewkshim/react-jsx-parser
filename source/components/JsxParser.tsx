@@ -8,6 +8,8 @@ import { randomHash } from '../helpers/hash'
 import { parseStyle } from '../helpers/parseStyle'
 import { resolvePath } from '../helpers/resolvePath'
 
+export const VERSION_TAG = '__andrewkshim_develop__ 1'
+
 type ObjectExpression = AcornJSX.ObjectExpression
 type ObjectExpressionNode = AcornJSX.ObjectExpressionNode
 type ObjectExpressionSpreadElement = AcornJSX.ObjectExpressionSpreadElement
