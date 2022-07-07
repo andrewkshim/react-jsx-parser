@@ -1152,6 +1152,36 @@ describe('JsxParser Component', () => {
 		})
 	})
 
+	describe('static methods', () => {
+		test('Object.keys', () => {
+			const { component, rendered } = render(
+				<JsxParser
+					jsx="<div>{Object.keys({a: 1, b: 2, c: 3}).map(key => <span>{key}</span>)}</div>"
+				/>,
+			)
+			expect(component.ParsedChildren[0].props.children).toHaveLength(3)
+			expect(rendered.textContent).toContain('abc')
+		})
+		test('Object.values', () => {
+			const { component, rendered } = render(
+				<JsxParser
+					jsx="<div>{Object.values({a: 1, b: 2, c: 3}).map(val => <span>{val}</span>)}</div>"
+				/>,
+			)
+			expect(component.ParsedChildren[0].props.children).toHaveLength(3)
+			expect(rendered.textContent).toContain('123')
+		})
+		test('Object.entries', () => {
+			const { component, rendered } = render(
+				<JsxParser
+					jsx="<div>{Object.entries({a: 1, b: 2, c: 3}).map((entry) => <span>{entry[0]}{entry[1]}</span>)}</div>"
+				/>,
+			)
+			expect(component.ParsedChildren[0].props.children).toHaveLength(3)
+			expect(rendered.textContent).toContain('a1b2c3')
+		})
+	})
+
 	test('props.renderUnrecognized()', () => {
 		const { html } = render(
 			<JsxParser

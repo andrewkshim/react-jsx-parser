@@ -35,6 +35,15 @@ export type TProps = {
 }
 type Scope = Record<string, any>
 
+const safeObject = Object.create(null)
+const globalScope = {
+	Object: {
+		keys: Object.keys.bind(safeObject),
+		values: Object.values.bind(safeObject),
+		entries: Object.entries.bind(safeObject),
+	},
+}
+
 function isSpreadElement(node: ObjectExpressionNode): node is ObjectExpressionSpreadElement {
 	return (node as ObjectExpressionSpreadElement).type === 'SpreadElement'
 }
@@ -152,8 +161,10 @@ export default class JsxParser extends React.Component<TProps> {
 		case 'ExpressionStatement':
 			return this.#parseExpression(expression.expression, scope)
 		case 'Identifier':
-			if (scope && expression.name in scope) {
-				return scope[expression.name]
+			const fullScope = { ...globalScope, ...scope }
+			if (fullScope && expression.name in fullScope) {
+				// @ts-ignore
+				return fullScope[expression.name]
 			}
 			return (this.props.bindings || {})[expression.name]
 
