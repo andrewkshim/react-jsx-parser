@@ -172,8 +172,13 @@ export default class JsxParser extends React.Component<TProps> {
 			return expression.value
 		case 'LogicalExpression':
 			const left = this.#parseExpression(expression.left, scope)
-			if (expression.operator === '||' && left) return left
-			if ((expression.operator === '&&' && left) || (expression.operator === '||' && !left)) {
+			const isShortCircuitOperator = expression.operator === '||' || expression.operator === '??'
+			if (isShortCircuitOperator && left) return left
+			if (
+				(expression.operator === '&&' && left)
+					|| (expression.operator === '??' && left == null)
+					|| (expression.operator === '||' && !left)
+			) {
 				return this.#parseExpression(expression.right, scope)
 			}
 			return false

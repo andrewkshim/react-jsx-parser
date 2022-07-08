@@ -257,19 +257,29 @@ describe('JsxParser Component', () => {
 				},
 			}
 			const third = {
-				text: 'Will Also Spread',
+				text: 'Will Spread (third)',
+			}
+			const fourth = {
+				moreText: 'Will Spread (fourth)',
+			}
+			const fifth = null
+			const sixth = {
+				inner: {
+					text: 'Will Spread (sixth)',
+				},
 			}
 			const { component, rendered } = render(
 				<JsxParser
 					components={{ Custom }}
-					bindings={{ first, second, third }}
+					bindings={{ first, second, third, fourth, fifth, sixth }}
 					jsx={
 						'<Custom'
 						+ ' {...first}'
 						+ ' {...second.innerProps}'
 						+ " {...{ willNotSpread: function() { return 'Will Not Spread' } }}"
 						+ " {...{ willSpread: 'Will Spread' }}"
-						+ ' alsoWillSpread={{ ...third }}'
+						+ ' alsoWillSpread={{ ...third, ...fourth }}'
+						+ ' willSpreadWithConditions={{ ...(fifth || sixth.inner) }}'
 						+ ' willSpreadButBeEmpty={{ ...({ maliciousFunction: function() { return "Will Not Spread" }}) }}'
 						+ ' />'
 					}
@@ -286,7 +296,9 @@ describe('JsxParser Component', () => {
 			expect(custom.props.className).toEqual('blah')
 			expect(custom.props.text).toEqual('Test Text')
 			expect(custom.props.willSpread).toEqual('Will Spread')
-			expect(custom.props.alsoWillSpread.text).toEqual('Will Also Spread')
+			expect(custom.props.alsoWillSpread.text).toEqual('Will Spread (third)')
+			expect(custom.props.alsoWillSpread.moreText).toEqual('Will Spread (fourth)')
+			expect(custom.props.willSpreadWithConditions.text).toEqual('Will Spread (sixth)')
 			expect(custom.props).not.toHaveProperty('willNotSpread')
 			expect(custom.props.willSpreadButBeEmpty).not.toHaveProperty('maliciousFunction')
 
