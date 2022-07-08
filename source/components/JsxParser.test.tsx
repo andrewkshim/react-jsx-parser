@@ -279,7 +279,7 @@ describe('JsxParser Component', () => {
 						+ " {...{ willNotSpread: function() { return 'Will Not Spread' } }}"
 						+ " {...{ willSpread: 'Will Spread' }}"
 						+ ' alsoWillSpread={{ ...third, ...fourth }}'
-						+ ' willSpreadWithConditions={{ ...(fifth || sixth.inner) }}'
+						+ ' willSpreadWithConditions={{ ...(fifth ?? sixth.inner) }}'
 						+ ' willSpreadButBeEmpty={{ ...({ maliciousFunction: function() { return "Will Not Spread" }}) }}'
 						+ ' />'
 					}
