@@ -1,5 +1,6 @@
 // @ts-nocheck
 /* eslint-disable function-paren-newline, no-console, no-underscore-dangle */
+/* eslint-disable no-template-curly-in-string */
 import React from 'react'
 import TestUtils from 'react-dom/test-utils'
 import { mount, shallow } from 'enzyme' // eslint-disable-line import/no-extraneous-dependencies
@@ -1402,6 +1403,17 @@ describe('JsxParser Component', () => {
 				/>,
 			)
 			expect(html).toEqual('<p>from-container</p>')
+		})
+
+		it('supports new', () => {
+			const { html } = render(
+				<JsxParser
+					renderInWrapper={false}
+					bindings={{ rows: [{ date: 'Nov 01, 2022 00:00:00' }, { date: 'Dec 01, 2022 00:00:00' }], Date }}
+					jsx="<div>{rows.map(r => <div>{new Date(r.date).getMonth()}</div>)}</div>"
+				/>,
+			)
+			expect(html).toEqual('<div><div>10</div><div>11</div></div>')
 		})
 	})
 })

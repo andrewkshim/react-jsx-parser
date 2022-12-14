@@ -128,6 +128,12 @@ declare module 'acorn-jsx' {
 		raw?: string;
 	}
 
+	export interface NewExpression extends BaseExpression {
+		type: 'NewExpression';
+		callee: Expression;
+		arguments: any[];
+	}
+
 	export interface ObjectExpressionNode {
 		key: { name?: string; value?: string },
 		value: Expression;
@@ -165,7 +171,7 @@ declare module 'acorn-jsx' {
 		JSXSpreadAttribute | JSXFragment | JSXText |
 		ArrayExpression | BinaryExpression | CallExpression | ConditionalExpression |
 		ExpressionStatement | Identifier | Literal | LogicalExpression | MemberExpression |
-		ObjectExpression | TemplateElement | TemplateLiteral | UnaryExpression |
+		NewExpression | ObjectExpression | TemplateElement | TemplateLiteral | UnaryExpression |
 		ArrowFunctionExpression
 
 	interface PluginOptions {

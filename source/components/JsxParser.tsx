@@ -8,7 +8,7 @@ import { randomHash } from '../helpers/hash'
 import { parseStyle } from '../helpers/parseStyle'
 import { resolvePath } from '../helpers/resolvePath'
 
-export const VERSION_TAG = '__andrewkshim_develop__ 1'
+export const VERSION_TAG = '__andrewkshim_develop__ 3'
 
 type ObjectExpression = AcornJSX.ObjectExpression
 type ObjectExpressionNode = AcornJSX.ObjectExpressionNode
@@ -109,6 +109,7 @@ export default class JsxParser extends React.Component<TProps> {
 	}
 
 	#parseExpression = (expression: AcornJSX.Expression, scope?: Scope): any => {
+		// console.log('[#parseExpression - 1]', expression, scope)
 		switch (expression.type) {
 		case 'JSXAttribute':
 			if (expression.value === null) return true
@@ -163,6 +164,7 @@ export default class JsxParser extends React.Component<TProps> {
 		case 'Identifier':
 			const fullScope = { ...globalScope, ...scope }
 			if (fullScope && expression.name in fullScope) {
+				// console.log('[#parseExpression - 2]', Object.keys(fullScope[expression.name]))
 				// @ts-ignore
 				return fullScope[expression.name]
 			}
@@ -184,6 +186,10 @@ export default class JsxParser extends React.Component<TProps> {
 			return false
 		case 'MemberExpression':
 			return this.#parseMemberExpression(expression, scope)
+		case 'NewExpression':
+			const callee = this.#parseExpression(expression.callee, scope)
+			// eslint-disable-next-line new-cap
+			return new callee(...expression.arguments.map(a => this.#parseExpression(a, scope)))
 		case 'ObjectExpression':
 			const object: Record<string, any> = {}
 			const sanitizedExpression = this.#sanitizeObjectExpression(expression)
@@ -227,7 +233,7 @@ export default class JsxParser extends React.Component<TProps> {
 				expression.params.forEach((param, idx) => {
 					functionScope[param.name] = args[idx]
 				})
-				return this.#parseExpression(expression.body, functionScope)
+				return this.#parseExpression(expression.body, { ...scope, ...functionScope })
 			}
 		}
 	}
@@ -257,6 +263,7 @@ export default class JsxParser extends React.Component<TProps> {
 				parent = value
 				return value[next]
 			}, target)
+			// console.log('[#parseMemberExpression - 1]', member, target, path)
 			if (typeof member === 'function') return member.bind(parent)
 
 			return member
