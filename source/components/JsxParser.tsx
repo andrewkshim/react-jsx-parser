@@ -8,7 +8,11 @@ import { randomHash } from '../helpers/hash'
 import { parseStyle } from '../helpers/parseStyle'
 import { resolvePath } from '../helpers/resolvePath'
 
-export const VERSION_TAG = '__andrewkshim_develop__ 3'
+export const VERSION_TAG = '__andrewkshim_develop__ 5'
+
+function isDefined(item: any): boolean {
+	return item != null
+}
 
 type ObjectExpression = AcornJSX.ObjectExpression
 type ObjectExpressionNode = AcornJSX.ObjectExpressionNode
@@ -92,7 +96,8 @@ export default class JsxParser extends React.Component<TProps> {
 			return null
 		}
 
-		return parsed.map(p => this.#parseExpression(p)).filter(Boolean)
+		// console.log('[#parseJsx - 1]', parsed)
+		return parsed.map(p => this.#parseExpression(p)).filter(isDefined)
 	}
 
 	#sanitizeObjectExpression = (expression: ObjectExpression): ObjectExpression | null => {
@@ -121,6 +126,10 @@ export default class JsxParser extends React.Component<TProps> {
 			return this.#parseExpression(expression.expression, scope)
 		case 'JSXText':
 			const key = this.props.disableKeyGeneration ? undefined : randomHash()
+			const { value } = expression
+			if (!value.trim()) {
+				return
+			}
 			return this.props.disableFragments
 				? expression.value
 				: <Fragment key={key}>{expression.value}</Fragment>
@@ -298,7 +307,7 @@ export default class JsxParser extends React.Component<TProps> {
 			.map(tag => tag.trim().toLowerCase()).filter(Boolean)
 
 		if (/^(html|head|body)$/i.test(name)) {
-			return childNodes.map(c => this.#parseElement(c, scope)) as JSX.Element[]
+			return childNodes.map(c => this.#parseElement(c, scope)).filter(isDefined) as JSX.Element[]
 		}
 		const tagName = name.trim().toLowerCase()
 		if (blacklistedTags.indexOf(tagName) !== -1) {
@@ -324,7 +333,7 @@ export default class JsxParser extends React.Component<TProps> {
 			: Fragment
 
 		if (component || canHaveChildren(name)) {
-			children = childNodes.map(node => this.#parseExpression(node, scope))
+			children = childNodes.map(node => this.#parseExpression(node, scope)).filter(isDefined)
 			if (!component && !canHaveWhitespace(name)) {
 				children = children.filter(child => (
 					typeof child !== 'string' || !/^\s*$/.test(child)
@@ -413,5 +422,19 @@ export default class JsxParser extends React.Component<TProps> {
 				: <>{this.ParsedChildren}</>
 		)
 	}
+}
+
+export function TabView(props: any) {
+	const { children } = props
+	return <>{children}</>
+}
+
+export function TabContainer(props: any) {
+	const { children } = props
+	return (
+		<div id="tab-container">
+			{children}
+		</div>
+	)
 }
 /* eslint-enable consistent-return */

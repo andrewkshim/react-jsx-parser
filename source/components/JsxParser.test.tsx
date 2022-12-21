@@ -4,7 +4,7 @@
 import React from 'react'
 import TestUtils from 'react-dom/test-utils'
 import { mount, shallow } from 'enzyme' // eslint-disable-line import/no-extraneous-dependencies
-import JsxParser from './JsxParser'
+import JsxParser, { TabContainer, TabView } from './JsxParser'
 
 jest.unmock('acorn-jsx')
 jest.unmock('./JsxParser')
@@ -653,9 +653,11 @@ describe('JsxParser Component', () => {
 		test('allows no-whitespace-element named custom components to take whitespace', () => {
 			// eslint-disable-next-line react/prop-types
 			const tr = ({ children }) => (<div className="tr">{children}</div>)
-			const { rendered } = render(<JsxParser components={{ tr }} jsx={'<tr> <a href="/url">Text</a> </tr>'} />)
+			const { rendered } = render(
+				<JsxParser components={{ tr }} jsx={'<tr> <a href="/url">Text</a> </tr>'} />,
+			)
 			expect(rendered.childNodes[0].nodeName).toEqual('DIV')
-			expect(rendered.childNodes[0].childNodes).toHaveLength(3)
+			expect(rendered.childNodes[0].childNodes).toHaveLength(1)
 
 			const [space1, text, space2] = Array.from(rendered.childNodes[0].childNodes)
 			const nodeTypes = [space1, text, space2].map(n => n.nodeType)
@@ -1414,6 +1416,23 @@ describe('JsxParser Component', () => {
 				/>,
 			)
 			expect(html).toEqual('<div><div>10</div><div>11</div></div>')
+		})
+
+		it('checking newline rendering', () => {
+			const { html } = render(
+				<JsxParser
+					renderInWrapper={false}
+					components={{ TabContainer, TabView }}
+					bindings={{ message: 'hello' }}
+					jsx={`
+						<TabContainer>
+               <TabView name={message}>Home page</TabView>
+               <TabView name={message}>About page</TabView>
+            </TabContainer>
+          `}
+				/>,
+			)
+			expect(html).toEqual('<div id="tab-container">Home pageAbout page</div>')
 		})
 	})
 })
